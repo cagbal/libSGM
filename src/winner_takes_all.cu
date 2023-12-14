@@ -264,6 +264,10 @@ void winner_takes_all(const DeviceImage& src, DeviceImage& dstL, DeviceImage& ds
 	else if (disp_size == 256) {
 		winner_takes_all_<256>(src, dstL, dstR, uniqueness, subpixel, path_type);
 	}
+	else{
+		winner_takes_all_<disp_size>(src, dstL, dstR, uniqueness, subpixel, path_type);
+	}
+	}
 }
 
 } // namespace details

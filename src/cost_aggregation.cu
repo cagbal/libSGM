@@ -650,6 +650,9 @@ void cost_aggregation(const DeviceImage& srcL, const DeviceImage& srcR, DeviceIm
 		else if (disp_size == 256) {
 			cost_aggregation_<uint32_t, 256>(srcL, srcR, dst, P1, P2, path_type, min_disp);
 		}
+		else{
+			cost_aggregation_<uint32_t, disp_size>(srcL, srcR, dst, P1, P2, path_type, min_disp);
+		}
 	}
 	else if (srcL.type == SGM_64U) {
 		if (disp_size == 64) {
@@ -660,6 +663,9 @@ void cost_aggregation(const DeviceImage& srcL, const DeviceImage& srcR, DeviceIm
 		}
 		else if (disp_size == 256) {
 			cost_aggregation_<uint64_t, 256>(srcL, srcR, dst, P1, P2, path_type, min_disp);
+		}
+		else{
+			cost_aggregation_<uint32_t, disp_size>(srcL, srcR, dst, P1, P2, path_type, min_disp);
 		}
 	}
 }
