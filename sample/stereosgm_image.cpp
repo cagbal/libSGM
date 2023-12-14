@@ -79,39 +79,30 @@ int main(int argc, char* argv[])
 
 	cv::Mat disparity(I1.size(), CV_16S);
 
-	ssgm.execute(I1.data, I2.data, disparity.data);
+	auto start_time = std::chrono::high_resolution_clock::now(); // Start timing
 
-	// create mask for invalid disp
-	const cv::Mat mask = disparity == ssgm.get_invalid_disparity();
+    ssgm.execute(I1.data, I2.data, disparity.data); // Stereo matching
 
-	// show image
-	cv::Mat disparity_8u, disparity_color;
-	disparity.convertTo(disparity_8u, CV_8U, 255. / disp_size);
-	cv::applyColorMap(disparity_8u, disparity_color, cv::COLORMAP_TURBO);
-	disparity_8u.setTo(0, mask);
-	disparity_color.setTo(cv::Scalar::all(0), mask);
-	if (I1.type() != CV_8U)
-		cv::normalize(I1, I1, 0, 255, cv::NORM_MINMAX, CV_8U);
+    auto end_time = std::chrono::high_resolution_clock::now(); // End timing
+    std::chrono::duration<double, std::milli> execution_time = end_time - start_time;
+    std::cout << "Execution Time: " << execution_time.count() << " ms" << std::endl;
 
-	const std::vector<cv::Mat> images = { disparity_8u, disparity_color, I1 };
-	const std::vector<std::string> titles = { "disparity", "disparity color", "input" };
+    // Create mask for invalid disp
+    const cv::Mat mask = disparity == ssgm.get_invalid_disparity();
 
-	std::cout << "Hot keys:" << std::endl;
-	std::cout << "\tESC - quit the program" << std::endl;
-	std::cout << "\ts - switch display (disparity | colored disparity | input image)" << std::endl;
+    // Process and save images
+    cv::Mat disparity_8u, disparity_color;
+    disparity.convertTo(disparity_8u, CV_8U, 255. / disp_size);
+    cv::applyColorMap(disparity_8u, disparity_color, cv::COLORMAP_TURBO);
+    disparity_8u.setTo(0, mask);
+    disparity_color.setTo(cv::Scalar::all(0), mask);
 
-	int mode = 0;
-	while (true) {
+    // Save images
+    cv::imwrite("disparity_8u.png", disparity_8u);
+    cv::imwrite("disparity_color.png", disparity_color);
+    if (I1.type() != CV_8U)
+        cv::normalize(I1, I1, 0, 255, cv::NORM_MINMAX, CV_8U);
+    cv::imwrite("input_image.png", I1);
 
-		cv::setWindowTitle("image", titles[mode]);
-		cv::imshow("image", images[mode]);
-
-		const char c = cv::waitKey(0);
-		if (c == 's')
-			mode = (mode < 2 ? mode + 1 : 0);
-		if (c == 27)
-			break;
-	}
-
-	return 0;
+    return 0;
 }
